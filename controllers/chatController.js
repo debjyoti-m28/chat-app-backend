@@ -68,4 +68,38 @@ const fetchChats = asyncHandler(async(req, res)=>{
    }
 });
 
-module.exports= { accessChat, fetchChats };
+const createGroupChat = asyncHandler(async(req,res)=>{
+    if(!req.body.users || !req.body.name){
+        return res.status(400).send({message: "please fill all the feilds"});
+    }
+
+    var users = JSON.parse(req.body.users); // can't take the array of users directly from thr frontend, so will stringyfy from frontend and do pasre in backend
+    
+    if(users.length<2){
+        return res.status(400).send("More then 2 users required");
+    }
+
+    users.push(req.user); // pushing the current user as well in the array for creating group
+    
+    // query for database
+    try{
+       const groupChat = await Chat.create({
+        chatName: req.body.name,
+        users: users,
+        isGroupChat: true,
+        groupAdmin: req.user,
+       });
+
+       const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+        res.status(200).json(fullGroupChat);
+    }catch(err){
+        res.status(400);
+        throw new Error(err.message);
+    }
+});
+
+
+module.exports= { accessChat, fetchChats, createGroupChat };
