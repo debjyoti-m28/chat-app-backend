@@ -4,7 +4,7 @@ const chatModel = mongoose.Schema(
     {
         chatName: {
             type: String,
-             trim: ture
+            //  trim: ture,
             },
         isGroupChat: {
             type: Boolean,
@@ -26,7 +26,7 @@ const chatModel = mongoose.Schema(
         }
     },
     {
-        timeStamps: true,
+        timestamps: true,
     }
 );
 
